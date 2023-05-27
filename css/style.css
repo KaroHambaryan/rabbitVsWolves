@@ -1,0 +1,243 @@
+/* body */
+body{
+	position: relative;
+}
+
+.root-wrapper{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+}
+
+/* increment button */
+.increment-button{
+	display: block;
+	margin: 0.3rem auto;
+	width: 8rem;
+	min-height: 2rem;
+	border-radius: 0.4rem;
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.increment-button:hover{
+	box-shadow: 0px 0px 10px 1px red;
+}
+
+/* app */
+.game{
+	margin-top: 1.5rem;
+	display: flex;
+	justify-content: center;
+	align-self: flex-start;
+	flex-shrink: 0;
+}
+
+/* gameground */
+.game__wrapper{
+	padding: 10px;
+	border: 1px solid black;
+	border-radius: 0.5rem;
+	box-shadow: 0px 0px 20px 0px red;
+
+}
+
+.background-aqua{
+	background-color: aqua;
+}
+
+.flex-column-center{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+/* select */
+.select{
+	width: 5.5rem;
+	font-size: 1.2rem;
+	border-radius: 0.5rem;
+	text-align: center;
+	background-color: aqua;
+}
+
+.select:hover{
+	box-shadow: 0px 0px 5px 1px red;
+}
+
+/* start */
+.start{
+	margin: 0.25rem 0 0.5rem 0;
+	width: 6rem;
+	height: 3rem;
+	font-size: 1.5rem;
+	font-weight: 500;
+	background-color: aqua;
+	border-radius: 0.5rem;
+}
+
+.start:hover{
+	box-shadow: 0px 0px 5px 1px red;
+}
+
+/* board */
+.flex-wrapp-owerflow{
+	display: flex;
+	flex-wrap: wrap;
+	overflow: hidden;
+}
+
+.background-light-pink{
+	background-color: rgb(201, 201, 217);
+}
+
+.board-position{
+	position: relative;
+}
+
+/* Buttons Block */
+.buttons__wrapper{
+	margin-top: 0.5rem;
+	display: flex;
+	align-items: end;
+}
+
+.flex-nowrapp{
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+.flex-column{
+	display: flex;
+	flex-direction: column;
+}
+
+
+
+/* Button */
+.button-horizontal{
+	width: 50px;
+	height: 30px;
+}
+
+.button{
+	font-size: 1.2rem;
+	font-weight: 600;
+	border-radius: 0.5rem;
+	margin: 0.1rem;
+}
+
+.button-vertical{
+	width: 40px;
+	height: 30px;
+}
+
+.button:hover{
+	box-shadow: 0px 0px 5px 1px red;
+}
+
+/* cell */
+.cell{
+	width: 40px;
+	height: 40px;
+	background-color: rgb(66, 218, 58,.4);
+	border: 1px solid black;
+}
+
+/* rabbit */
+.rabbit{
+	display: block;
+	width: 40px;
+	height: 40px;
+	background-image: url('../image/rabbit.png');
+	background-size: cover;
+  background-repeat: no-repeat;
+	background-color: rgb(66, 218, 58,.4);
+	border: 1px solid black;
+}
+
+/* wolf */
+.wolf{
+	display: block;
+	width: 40px;
+	height: 40px;
+	background-image: url('../image/wolf.png');
+	background-size: cover;
+  background-repeat: no-repeat;
+	transition: all 0.5s ease-out;
+	background-color: rgb(66, 218, 58,.4);
+	border: 1px solid black;
+}
+
+/* barrier */
+.barrier{
+	display: block;
+	width: 40px;
+	height: 40px;
+	background-image: url('../image/barrier.png');
+	background-size: cover;
+  background-repeat: no-repeat;
+	transition: all 0.5s ease-out;
+	background-color: rgb(66, 218, 58,.4);
+	border: 1px solid black;
+}
+
+/* home */
+.home{
+	display: block;
+	width: 40px;
+	height: 40px;
+	background-image: url('../image/home.png');
+	background-size: cover;
+  background-repeat: no-repeat;
+	transition: all 0.5s ease-out;
+	background-color: rgb(66, 218, 58,.4);
+	border: 1px solid black;
+}
+
+/* scoreboard */
+.scoreboard{
+	width: 100%;
+	height: 100%;
+}
+
+.background-black-04{
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.scoreboard-position{
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.flex-all-centring{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.scoreboard-content__wrapper{
+	width: 500px;
+	height: 500px;
+}
+
+.flex-column-all-centring{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.background-black-07{
+	background-color:rgba(4, 4, 4, 0.7);
+}
+
+.text-style{
+	font-size: 30px;
+	color: rgb(6, 241, 6);
+}
+
+/* display - none */
+.display-none{
+	display: none;
+}
