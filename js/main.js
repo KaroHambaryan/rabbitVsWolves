@@ -1,7 +1,7 @@
 'use strict';
 const newGameData = () => {
 	return {
-		matrix: [],
+		matr: [],
 		randomCoords: [],
 		boardSize: 5,
 		rabbit_cell: 'rabbit',
@@ -28,27 +28,17 @@ const setParticipant = data => {
 };
 
 const createMatrix = data => {
-	data.matrix = [];
+	data.matr = [];
 	for(let i = 0; i < data.boardSize; i++){
-		data.matrix[i] = [];
+		data.matr[i] = [];
 		for(let j = 0; j < data.boardSize; j++){
-			data.matrix[i][j] = data.free_cell;
+			data.matr[i][j] = data.free_cell;
 		}
 	}
 	return data;
 }
 
-const setRandomCell = data => {
-	let count = true;
-	while (count) {
-		const x = Math.floor(Math.random() * data.boardSize);
-		const y = Math.floor(Math.random() * data.boardSize);
-		if (data.matrix[x][y] === data.free_cell) {
-			count = false;
-			return [x, y];
-		}
-	}
-};
+
 
 const placeCharacter = data => {
 	[
@@ -58,7 +48,7 @@ const placeCharacter = data => {
 		for (let i = 0; i < elem[1]; i++) {
 			const arr = setRandomCell(data);
 			const [x, y] = [arr[0],arr[1]];
-			data.matrix[x][y] = elem[0];
+			data.matr[x][y] = elem[0];
 		}
 	});
 	return data;
@@ -68,7 +58,7 @@ const render = data => {
 	const root = document.getElementById('root');
 	const board = (root.lastElementChild).querySelector('#board');
 	board.innerHTML = null;
-	data.matrix.forEach(element => {
+	data.matr.forEach(element => {
 		const column = document.createElement('div');
 		element.forEach(class_name => {
 			const row = document.createElement('div');
@@ -93,11 +83,11 @@ const startGame = () => {
 	start(gameData);
 }
 
-const getCoordinates = class_name => data =>  {
+const getAnimalCoordinates= class_name => data =>  {
 	const coordsArray = []
-	for (let i = 0; i < data.matrix.length; i++) {
-		for (let j = 0; j < data.matrix.length; j++) {
-			if (data.matrix[i][j] === class_name) {
+	for (let i = 0; i < data.matr.length; i++) {
+		for (let j = 0; j < data.matr.length; j++) {
+			if (data.matr[i][j] === class_name) {
 				coordsArray.push([i, j])
 			}
 		}
@@ -106,8 +96,8 @@ const getCoordinates = class_name => data =>  {
 	return coordsArray;
 };
 
-const rabbitStep = event => coordArrey => {
-	let [x, y] = coordArrey[0];
+const rabbitStep = event => coordArray => {
+	let [x, y] = coordArray[0];
 	console.log(event);
 	switch (event) {
 		case "ArrowUp":
@@ -125,12 +115,7 @@ const rabbitStep = event => coordArrey => {
 	}
 }
 
-const moveStep = className => newCord => {
-	const [x, y] = newCord;
-	if (matrix[x][y] === className) {
-		
-	}
-} 
+const moveStep = 
 
 document.addEventListener("keyup", function (e) {
 	const move = compose(rabbitStep(e.key),getCoordinates(gameData.rabbit_cell))
