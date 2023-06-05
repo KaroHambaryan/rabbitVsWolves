@@ -1,237 +1,195 @@
-'use strict';
-const newGameData = () => {
-	return {
-		randomCoords: [],
-		rabbitPos: { x: 0, y: 0 },
-		housePos: { x: 4, y: 4 },
-		wolvesPos: [{ x: 2, y: 2 }, { x: 3, y: 3 }, { x: 1, y: 4 }],
-		barriersPos: [{ x: 4, y: 3 }, { x: 3, y: 2 }],
-		rabbit: 'rabbit',
-		house: 'home',
-		barrier: 'barrier',
-		wolf: 'wolf',
-		cell: 'cell',
-		boardSize: 5,
-		incrementCoefficient: 2,
-		countOfParticipants: 7,
-		countOfWolves: 3,
-		countOfBarriers: 2,
-		victory_Status: null,
-		Array_Probable_Moves_Wolves: [],
-		matrix_With_Cordinates_For_Counting: [],
-		matrix_With_Board_Cell_Classes: new Array(5).fill(0).map(() => new Array(5).fill(0).map(() => 'cell')),
-	}
-}
+const FREE_CELL = 'cell';
+const RABBIT_CELL = 'rabbit';
+const WOLF_CELL = 'wolf';
+const HOME_CELL = 'home';
+const BARRIER_CELL = 'barrier';
 
-const setParticipants = data => x => {
-	data.boardSize = x;
-	data.matrix_With_Board_Cell_Classes = new Array(data.boardSize).fill(0).map(() => new Array(data.boardSize).fill(0).map(() => 'cell'));
-	data.countOfParticipants = data.boardSize + data.incrementCoefficient;
-	data.countOfWolves = Math.floor((data.countOfParticipants - data.incrementCoefficient) * 60 / 100);
-	data.countOfBarriers = (data.countOfParticipants - data.incrementCoefficient) - data.countOfWolves;
+let matrix = [];
+
+let settings = {
+	boardSize: 5,
+	wolf: 3,
+	barrier: 2,
+	rabbit: 1,
+	home: 1,
+};
+
+const changeStateSettings = data => settings = data;
+const changeStateMatrix = matr => matrix = matr;
+
+const setBoardSize = curry((data, size) => {
+	data.boardSize = size;
+	return data;
+});
+
+const setWolvesQuantity = data => {
+	data.wolf = Math.floor((data.boardSize * 60) / 100);
 	return data;
 };
 
-const createRandomCoords = data => {
-	data.randomCoords = [];
-	while (data.randomCoords.length < data.countOfParticipants) {
-		const randomXY = { x: Math.floor(Math.random() * data.boardSize), y: Math.floor(Math.random() * data.boardSize) };
-		const isCoordsMatch = ifThereIsA(data.randomCoords, randomXY);
-		if (!isCoordsMatch) {
-			data.randomCoords.push(randomXY);
+const setBarriersQuantity = data => {
+	data.barrier = Math.ceil((data.boardSize * 40) / 100);
+	return data;
+};
+
+const createMatrix = data => {
+	matr = [];
+	for (let i = 0; i < data.boardSize; i++) {
+		matr[i] = [];
+		for (let j = 0; j < data.boardSize; j++) {
+			matr[i][j] = FREE_CELL;
 		}
 	}
-	return data;
+	return matr;
 };
 
-const filterRandomCoordinates = data => {
-	data.wolvesPos = data.randomCoords.slice(0, data.countOfWolves);
-	data.barriersPos = data.randomCoords.slice(data.countOfWolves, data.randomCoords.length - 2);
-	data.rabbitPos = data.randomCoords[data.randomCoords.length - 2];
-	data.housePos = data.randomCoords[data.randomCoords.length - 1];
-	return data;
-};
-
-const ifThereIsA = (into, it) => {
-	return into.some(e => (e.x === it.x) && (e.y === it.y));
-};
-
-const rabbitStep = data => actionType => {
-	const tempY = data.rabbitPos.y;
-	const tempX = data.rabbitPos.x;
-	switch (actionType) {
-		case "up":
-			data.rabbitPos.y--;
-			break;
-		case "down":
-			data.rabbitPos.y++;
-			break;
-		case "left":
-			data.rabbitPos.x--;
-			break;
-		case "right":
-			data.rabbitPos.x++;
-			break;
+const getRandomCoordinates = curry((data, matr) => {
+	let lock = true;
+	while (lock) {
+		const [x, y] = [Math.floor(Math.random() * data.boardSize), Math.floor(Math.random() * data.boardSize)];
+		if (matr[x][y] === FREE_CELL) {
+			lock = false;
+			return { x, y };
+		}
 	}
-	data.rabbitPos = ifThereIsA(data.barriersPos, data.rabbitPos) ? { x: tempX, y: tempY } : data.rabbitPos;
-	return data;
-};
+});
 
-const checkRabbitPosition = data => {
-	data.rabbitPos.y = (data.rabbitPos.y + data.boardSize) % data.boardSize;
-	data.rabbitPos.y = ifThereIsA(data.barriersPos, data.rabbitPos) ? (data.rabbitPos.y === 0 ? data.boardSize - 1 : 0) : data.rabbitPos.y;
-	data.rabbitPos.x = (data.rabbitPos.x + data.boardSize) % data.boardSize;
-	data.rabbitPos.x = ifThereIsA(data.barriersPos, data.rabbitPos) ? (data.rabbitPos.x === 0 ? data.boardSize - 1 : 0) : data.rabbitPos.x;
-	return data;
-};
+const putAnimalInMatrix = curry((data, animalName, matr) => {
+	for (let i = 0; i < data[animalName]; i++) {
+		const arr = getRandomCoordinates(data, matr);
+		const { x, y } = arr;
+		matr[x][y] = animalName;
+	}
+	return matr;
+});
 
-const wolvesStep = data => {
-	data.matrix_With_Cordinates_For_Counting = data.matrix_With_Cordinates_For_Counting.flat();
-	data.wolvesPos = data.Array_Probable_Moves_Wolves.map(probable_Moves_Of_One_Wolf => {
-		const probable_Moves = data.matrix_With_Cordinates_For_Counting.filter(coordinates => ifThereIsA(probable_Moves_Of_One_Wolf, coordinates));
-		const min = Math.min(...probable_Moves.map(wolf => wolf.g));
-		const coordinates_to_Next_Step_Wolf = probable_Moves.find(wolf => wolf.g === min);
-		data.matrix_With_Cordinates_For_Counting.splice(data.matrix_With_Cordinates_For_Counting.indexOf(coordinates_to_Next_Step_Wolf), 1);
-		return coordinates_to_Next_Step_Wolf;
-	});
-	return data;
-};
-
-const generateBoardData = data => {
-	data.matrix_With_Board_Cell_Classes = [];
-	data.matrix_With_Cordinates_For_Counting = [];
-	for (let i = 0; i < data.boardSize; i++) {
-		const cell_Classes = [];
-		const cordinates_For_Counting = [];
-		for (let j = 0; j < data.boardSize; j++) {
-			const g = Math.pow(Math.abs(data.rabbitPos.x - i), 2) + Math.pow(Math.abs(data.rabbitPos.y - j), 2);
-			const ifRabbit = ifThereIsA([data.rabbitPos], { x: i, y: j });
-			const ifHouse = ifThereIsA([data.housePos], { x: i, y: j });
-			const ifBarrier = ifThereIsA(data.barriersPos, { x: i, y: j });
-			const ifWolf = ifThereIsA(data.wolvesPos, { x: i, y: j });
-			if (ifWolf) {
-				cell_Classes.push(data.wolf);
-				cordinates_For_Counting.push({ g, x: i, y: j });
-			} else if (ifRabbit) {
-				cell_Classes.push(data.rabbit);
-				cordinates_For_Counting.push({ g, x: i, y: j });
-			} else if (ifBarrier) {
-				cell_Classes.push(data.barrier);
-			} else if (ifHouse) {
-				cell_Classes.push(data.house);
-			} else {
-				cell_Classes.push(data.cell);
-				cordinates_For_Counting.push({ g, x: i, y: j });
+const getAnimalCoordinates = curry((animalName, matr) => {
+	const coordsArray = []
+	for (let i = 0; i < matr.length; i++) {
+		for (let j = 0; j < matr.length; j++) {
+			if (matr[i][j] === animalName) {
+				coordsArray.push({ x: i, y: j })
 			}
 		}
-		data.matrix_With_Cordinates_For_Counting.push(cordinates_For_Counting);
-		data.matrix_With_Board_Cell_Classes.push(cell_Classes);
 	}
-	return data;
-};
+	return coordsArray.length === 1 ? coordsArray[0] : coordsArray;
+});
 
-const createProbableWolfМove = (data) => {
-	data.Array_Probable_Moves_Wolves = [];
-	data.wolvesPos.forEach(wolfPos => {
-		const probable_Moves_Of_One_Wolf = [];
-		let { i, j } = wolfPos;
-		if (i < data.boardSize - 1) { probable_Moves_Of_One_Wolf.push({ x: i + 1, y: j }) };
-		if (i > 0) { probable_Moves_Of_One_Wolf.push({ x: i - 1, y: j }) };
-		if (j > 0) { probable_Moves_Of_One_Wolf.push({ x: i, y: j - 1 }) };
-		if (j < data.boardSize - 1) { probable_Moves_Of_One_Wolf.push({ x: i, y: j + 1 }) };
-		data.Array_Probable_Moves_Wolves.push(probable_Moves_Of_One_Wolf);
-	})
-	return data;
-}
-
-const render = data => {
-	const root = document.getElementById('root');
-	const board = (root.lastElementChild).querySelector('#board');
-	board.innerHTML = null;
-	data.matrix_With_Board_Cell_Classes.forEach(classesArray => {
-		const cell_Classes = document.createElement('div');
-		classesArray.forEach(className => {
-			const cell = document.createElement('div');
-			cell.classList.add(className);
-			cell_Classes.append(cell);
-		});
-		board.append(cell_Classes);
-	});
-	return data;
-}
-
-const checkVictory = data => {
-	const rabbitWins = data.housePos.x === data.rabbitPos.x && data.housePos.y === data.rabbitPos.y;
-	const wolfWins = data.wolvesPos.some(wolfPos => wolfPos.x === data.rabbitPos.x && wolfPos.y === data.rabbitPos.y);
-	data.victory_Status = rabbitWins ? 'WIN' : (wolfWins ? 'LOSS' : null);
-	const start = () => {
-		renderOnRandomPositions(data);
-		displayNone();
-	};
-
-	const change = (val) => {
-		const changeboard = compose(render, setParticipants(data));
-		changeboard(+val.target.value);
-	};
-
-	if (data.victory_Status) {
-		const info = document.querySelector("#info");
-		info.querySelector('.text-style').textContent = data.victory_Status;
-		info.classList.remove('display-none');
-		info.querySelector('.start').onclick = start;
-		info.querySelector('.select').onchange = change;
+const rabbitStep = curry((event, data, coords) => {
+	let { x, y } = coords;
+	let temp = coords;
+	switch (event) {
+		case "ArrowUp":
+			y -= 1;
+			if (y < 0) { y = data.boardSize - 1 };
+			break;
+		case "ArrowDown":
+			y += 1
+			if (y > data.boardSize - 1) { y = 0 };
+			break;
+		case "ArrowLeft":
+			x -= 1
+			if (x < 0) { x = data.boardSize - 1 };
+			break;
+		case "ArrowRight":
+			x += 1;
+			if (x > data.boardSize - 1) { x = 0 };
+			break;
 	}
-	return data;
-};
+	return {
+		newCoord: { x, y },
+		oldCoord: temp,
+	};
+});
 
-const compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(null, ...res)], args)[0];
-
-const root = document.getElementById('root');
-const game = root.querySelector('.game');
-const data = newGameData();
-
-const renderOnRandomPositions = compose(render, createProbableWolfМove, generateBoardData, filterRandomCoordinates, createRandomCoords);
-
-const change = (val) => {
-	const changeboard = compose(render, setParticipants(data));
-	changeboard(val);
-};
-
-const moveParticipants = (val) => {
-	const move = compose(render, checkVictory, createProbableWolfМove, generateBoardData, wolvesStep, checkVictory, createProbableWolfМove, generateBoardData, checkRabbitPosition, rabbitStep(data));
-	move(val);
-};
-
-const start = () => {
-	renderOnRandomPositions(data);
+const renderVictoryInfo = (message) => {
+	const info = document.querySelector("#info");
+	info.querySelector('.text-style').textContent = message;
+	info.classList.remove('display-none');
 };
 
 const displayNone = () => info.classList.add('display-none');
 
-const createCopy = () => {
-	const clone = game.cloneNode(true);
-	root.appendChild(clone);
+const changePlaice = curry((matr, animalName, coords) => {
+	const { newCoord, oldCoord } = coords;
+	if (matr[newCoord.x][newCoord.y] === FREE_CELL) {
+		matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+		matr[newCoord.x][newCoord.y] = animalName;
+	}
+	if (animalName === RABBIT_CELL) {
+		if (matr[newCoord.x][newCoord.y] === WOLF_CELL) {
+			renderVictoryInfo('Loss');
+			matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+			matr[newCoord.x][newCoord.y] = animalName;
+		}
+		if (matr[newCoord.x][newCoord.y] === HOME_CELL) {
+			renderVictoryInfo('Won');
+			matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+			matr[newCoord.x][newCoord.y] = animalName;
+		}
+	}
+	if (animalName === WOLF_CELL) {
+		if (matr[newCoord.x][newCoord.y] === RABBIT_CELL) {
+			renderVictoryInfo('Loss');
+			matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+			matr[newCoord.x][newCoord.y] = animalName;
+		}
+	}
+	return matr;
+});
 
-	const data = newGameData();
+const wolfStep = curry((wolf, rabbit) => {
+	const random = Math.floor(Math.random() * 2);
+	if (random === 0) {
+		if (wolf.y < rabbit.y) { wolf.y += 1; }
+		if (wolf.y > rabbit.y) { wolf.y -= 1; }
+	} else {
+		if (wolf.x < rabbit.x) { wolf.x += 1; }
+		if (wolf.x > rabbit.x) { wolf.x -= 1; }
+	}
+	return wolf;
+});
 
-	const start = () => {
-		renderOnRandomPositions(data);
-	};
-
-	const moveParticipants = (val) => {
-		const move = compose(render, checkVictory, createProbableWolfМove, generateBoardData, wolvesStep, checkVictory, createProbableWolfМove, generateBoardData, checkRabbitPosition, rabbitStep(data));
-		move(val.target.value);
-	};
-
-	const change = (val) => {
-		const changeboard = compose(render, setParticipants(data));
-		changeboard(+val.target.value);
-	};
-
-	clone.querySelector('.start').onclick = start;
-	clone.querySelectorAll('.button').forEach(button => button.onclick = moveParticipants);
-	clone.querySelector('.select').onchange = change;
-	render(data);
+const wolvesStep = matr => {
+	const length = getAnimalCoordinates(WOLF_CELL, matr).length;
+	const rabbit = getAnimalCoordinates(RABBIT_CELL, matr);
+	for (let i = 0; i < length ; i++) {
+		let wolf = getAnimalCoordinates(WOLF_CELL, matr)[i];
+		let futurePlaceWolf = wolfStep({...wolf}, rabbit);
+		const coord = { newCoord: futurePlaceWolf, oldCoord: wolf }
+		matr = changePlaice(matr, WOLF_CELL, coord);
+	}
+	return matr
 };
 
-render(data);
+const render = matr => {
+	const root = document.getElementById('root');
+	const board = (root.lastElementChild).querySelector('#board');
+	board.innerHTML = null;
+	matr.forEach(array => {
+		const column = document.createElement('div');
+		array.forEach(cellName => {
+			const row = document.createElement('div');
+			row.classList.add(cellName);
+			column.append(row);
+		})
+		board.append(column);
+	})
+};
+
+const changeSelectValue = (selectedValue) => {
+	const set = compose(changeStateSettings, setBarriersQuantity, setWolvesQuantity, setBoardSize(settings));
+	set(selectedValue);
+}
+
+const startGame = () => {
+	const start = compose(
+		render,changeStateMatrix,putAnimalInMatrix(settings, BARRIER_CELL),putAnimalInMatrix(settings, HOME_CELL),putAnimalInMatrix(settings, WOLF_CELL),putAnimalInMatrix(settings, RABBIT_CELL),createMatrix);
+	start(settings);
+	displayNone();
+}
+
+document.addEventListener("keyup", function (e) {
+	const move = compose( render,changeStateMatrix,wolvesStep, changePlaice(matrix, RABBIT_CELL),rabbitStep(e.key, settings),getAnimalCoordinates(RABBIT_CELL));
+	move(matrix);
+});

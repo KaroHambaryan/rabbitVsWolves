@@ -10,7 +10,6 @@
 	<link rel="stylesheet" href="css/style.css">
 	<title>Document</title>
 </head>
-
 <body>
 	<button onclick="createCopy()" value="plus" id="addButton" class="increment-button">Add New Game</button>
 	<div id="root" class="root-wrapper">
@@ -21,20 +20,10 @@
 					<option class="option" value="7">7x7</option>
 					<option class="option" value="10">10x10</option>
 				</select>
-				<div >
+				<div>
 					<button onclick="startGame()" class="start">START</button>
 				</div>
-
 				<div id="board" class="board flex-wrapp-owerflow board-position background-light-pink"></div>
-				<div class="buttons__wrapper flex-wrapp">
-					<button onclick="moveParticipants(value)" value="left" class="button button-horizontal">LF</button>
-					<div class="flex-column background-red">
-						<button onclick="moveParticipants(value)" value="up" class="button button-vertical">UP</button>
-						<button onclick="moveParticipants(value)" value="down" class="button button-vertical">DW</button>
-					</div>
-					<button onclick="moveParticipants(value)" value="right" class="button button-horizontal">RI</button>
-				</div>
-
 			</div>
 		</div>
 	</div>
@@ -49,11 +38,7 @@
 			<div class="text-style"></div>
 		</div>
 	</div>
-
-	<!-- <script src="js/index.js"></script> -->
-	<!-- <script src="js/main.js"></script> -->
 	<script src="js/globalVariables.js"></script>
-		<script src="js/index1.js"></script>
+	<script src="js/index.js"></script>
 </body>
-
 </html>

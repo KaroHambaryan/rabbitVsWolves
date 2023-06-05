@@ -11,12 +11,12 @@ const curry = (fn) => {
 		return fn.call(null, ...args);
 	};
 };
-
-const zip = reset => {
-	let container = []
+// zip :: (...a) -> [a1,a2,a3] if a===null -> []
+const zip = params => {
+	let container = [];
 	return (...args) => {
 		container.push(...args);
-		if (reset === null) { container = [] };
+		if (params === null) { container = [] };
 		console.log(container);
 		return container.length === 1 ? container[0] : container;
 	}
