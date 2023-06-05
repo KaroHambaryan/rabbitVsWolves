@@ -17,16 +17,6 @@ let settings = {
 const changeStateSettings = data => settings = data;
 const changeStateMatrix = matr => matrix = matr;
 
-const zip = reset => {
-	let container = []
-	return (...args) => {
-		container.push(...args);
-		if (reset === null) { container = [] };
-		console.log(container);
-		return container.length === 1 ? container[0] : container;
-	}
-};
-
 const setBoardSize = curry((data, size) => {
 	data.boardSize = size;
 	return data;
@@ -113,11 +103,13 @@ const rabbitStep = curry((event, data, coords) => {
 	};
 });
 
-const renderVictoriInfo = (message) => {
+const renderVictoryInfo = (message) => {
 	const info = document.querySelector("#info");
 	info.querySelector('.text-style').textContent = message;
 	info.classList.remove('display-none');
 };
+
+
 
 const changePlaice = curry((matr, animalName, coords) => {
 	const { newCoord, oldCoord } = coords;
@@ -125,11 +117,29 @@ const changePlaice = curry((matr, animalName, coords) => {
 		matr[oldCoord.x][oldCoord.y] = FREE_CELL;
 		matr[newCoord.x][newCoord.y] = animalName;
 	}
+	if (animalName === RABBIT_CELL) {
+		if (matr[newCoord.x][newCoord.y] === WOLF_CELL) {
+			renderVictoryInfo('Loss');
+			matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+			matr[newCoord.x][newCoord.y] = animalName;
+		}
+		if (matr[newCoord.x][newCoord.y] === HOME_CELL) {
+			renderVictoryInfo('Won');
+			matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+			matr[newCoord.x][newCoord.y] = animalName;
+		}
+	}
+	if (animalName === WOLF_CELL) {
+		if (matr[newCoord.x][newCoord.y] === RABBIT_CELL) {
+			renderVictoryInfo('Loss');
+			matr[oldCoord.x][oldCoord.y] = FREE_CELL;
+			matr[newCoord.x][newCoord.y] = animalName;
+		}
+	}
 	return matr;
 });
 
 const wolfStep = curry((wolf, rabbit) => {
-	console.log(wolf, "old");
 	const random = Math.floor(Math.random() * 2);
 	if (random === 0) {
 		if (wolf.y < rabbit.y) { wolf.y += 1; }
@@ -140,21 +150,17 @@ const wolfStep = curry((wolf, rabbit) => {
 	}
 	return wolf;
 });
-// I Have a problem
+
 const wolvesStep = matr => {
-	const wolves = getAnimalCoordinates(WOLF_CELL, matr);
+	const length = getAnimalCoordinates(WOLF_CELL, matr).length;
 	const rabbit = getAnimalCoordinates(RABBIT_CELL, matr);
-	// console.log(rabbit, "rab");
-	for (let i = 0; i < wolves.length; i++) {
-		let wol = wolves[i];
-		let futurePlaceWolf = wolfStep(wol, rabbit);
-		const coord = { newCoord:futurePlaceWolf, oldCoord: wolves[i]}
-		console.log(futurePlaceWolf,'new');
-		console.log(coord);
-		const m = changePlaice(matr, WOLF_CELL, { newCoord: futurePlaceWolf, oldCoord: wol });
-		render(m)
+	for (let i = 0; i < length ; i++) {
+		let wolf = getAnimalCoordinates(WOLF_CELL, matr)[i];
+		let futurePlaceWolf = wolfStep({...wolf}, rabbit);
+		const coord = { newCoord: futurePlaceWolf, oldCoord: wolf }
+		matr = changePlaice(matr, WOLF_CELL, coord);
 	}
-	return changeStateMatrix(matr)
+	return matr
 };
 
 const render = matr => {
@@ -173,33 +179,18 @@ const render = matr => {
 };
 
 const changeSelectValue = (selectedValue) => {
-	const set = compose(
-		changeStateSettings,
-		setBarriersQuantity,
-		setWolvesQuantity,
-		setBoardSize(settings))
+	const set = compose(changeStateSettings,setBarriersQuantity,setWolvesQuantity,setBoardSize(settings))
 	set(selectedValue);
 }
 
 const startGame = () => {
 	const start = compose(
-		render,
-		changeStateMatrix,
-		putAnimalInMatrix(settings, BARRIER_CELL),
-		putAnimalInMatrix(settings, HOME_CELL),
-		putAnimalInMatrix(settings, WOLF_CELL),
-		putAnimalInMatrix(settings, RABBIT_CELL),
-		createMatrix
-	);
+		render,changeStateMatrix,putAnimalInMatrix(settings, BARRIER_CELL),putAnimalInMatrix(settings, HOME_CELL),putAnimalInMatrix(settings, WOLF_CELL),putAnimalInMatrix(settings, RABBIT_CELL),createMatrix);
 	start(settings);
+	renderVictoryInfo();
 }
 
 document.addEventListener("keyup", function (e) {
-	const move = compose(
-		wolvesStep,
-		changePlaice(matrix, RABBIT_CELL),
-		rabbitStep(e.key, settings),
-		// zip(),
-		getAnimalCoordinates(RABBIT_CELL));
-	console.log(move(matrix));
+	const move = compose( render,changeStateMatrix,wolvesStep, changePlaice(matrix, RABBIT_CELL),rabbitStep(e.key, settings),getAnimalCoordinates(RABBIT_CELL));
+	move(matrix);
 });
