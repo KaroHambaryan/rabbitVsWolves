@@ -153,9 +153,9 @@ const wolfStep = curry((wolf, rabbit) => {
 const wolvesStep = matr => {
 	const length = getAnimalCoordinates(WOLF_CELL, matr).length;
 	const rabbit = getAnimalCoordinates(RABBIT_CELL, matr);
-	for (let i = 0; i < length ; i++) {
+	for (let i = 0; i < length; i++) {
 		let wolf = getAnimalCoordinates(WOLF_CELL, matr)[i];
-		let futurePlaceWolf = wolfStep({...wolf}, rabbit);
+		let futurePlaceWolf = wolfStep({ ...wolf }, rabbit);
 		const coord = { newCoord: futurePlaceWolf, oldCoord: wolf }
 		matr = changePlaice(matr, WOLF_CELL, coord);
 	}
@@ -183,13 +183,12 @@ const changeSelectValue = (selectedValue) => {
 }
 
 const startGame = () => {
-	const start = compose(
-		render,changeStateMatrix,putAnimalInMatrix(settings, BARRIER_CELL),putAnimalInMatrix(settings, HOME_CELL),putAnimalInMatrix(settings, WOLF_CELL),putAnimalInMatrix(settings, RABBIT_CELL),createMatrix);
+	const start = compose(render, changeStateMatrix, putAnimalInMatrix(settings, BARRIER_CELL), putAnimalInMatrix(settings, HOME_CELL), putAnimalInMatrix(settings, WOLF_CELL), putAnimalInMatrix(settings, RABBIT_CELL), createMatrix);
 	start(settings);
 	displayNone();
 }
 
 document.addEventListener("keyup", function (e) {
-	const move = compose( render,changeStateMatrix,wolvesStep, changePlaice(matrix, RABBIT_CELL),rabbitStep(e.key, settings),getAnimalCoordinates(RABBIT_CELL));
+	const move = compose(render, changeStateMatrix, wolvesStep, changePlaice(matrix, RABBIT_CELL), rabbitStep(e.key, settings), getAnimalCoordinates(RABBIT_CELL));
 	move(matrix);
 });
