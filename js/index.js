@@ -44,14 +44,14 @@ const createMatrix = data => {
 };
 
 const getRandomCoordinates = curry((data, matr) => {
-	let lock = true;
-	while (lock) {
+	const generateCoordinates = () => {
 		const [x, y] = [Math.floor(Math.random() * data.boardSize), Math.floor(Math.random() * data.boardSize)];
 		if (matr[x][y] === FREE_CELL) {
-			lock = false;
 			return { x, y };
 		}
+		return generateCoordinates();
 	}
+	return generateCoordinates();
 });
 
 const putAnimalInMatrix = curry((data, animalName, matr) => {
