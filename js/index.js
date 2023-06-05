@@ -85,7 +85,7 @@ const checkRabbitPosition = data => {
 	return data;
 };
 
-const wolfStep = data => {
+const wolvesStep = data => {
 	data.matrix_With_Cordinates_For_Counting = data.matrix_With_Cordinates_For_Counting.flat();
 	data.wolvesPos = data.Array_Probable_Moves_Wolves.map(probable_Moves_Of_One_Wolf => {
 		const probable_Moves = data.matrix_With_Cordinates_For_Counting.filter(coordinates => ifThereIsA(probable_Moves_Of_One_Wolf, coordinates));
@@ -134,8 +134,7 @@ const createProbableWolfМove = (data) => {
 	data.Array_Probable_Moves_Wolves = [];
 	data.wolvesPos.forEach(wolfPos => {
 		const probable_Moves_Of_One_Wolf = [];
-		let i = wolfPos.x;
-		let j = wolfPos.y;
+		let { i, j } = wolfPos;
 		if (i < data.boardSize - 1) { probable_Moves_Of_One_Wolf.push({ x: i + 1, y: j }) };
 		if (i > 0) { probable_Moves_Of_One_Wolf.push({ x: i - 1, y: j }) };
 		if (j > 0) { probable_Moves_Of_One_Wolf.push({ x: i, y: j - 1 }) };
@@ -199,7 +198,7 @@ const change = (val) => {
 };
 
 const moveParticipants = (val) => {
-	const move = compose(render, checkVictory, createProbableWolfМove, generateBoardData, wolfStep, checkVictory, createProbableWolfМove, generateBoardData, checkRabbitPosition, rabbitStep(data));
+	const move = compose(render, checkVictory, createProbableWolfМove, generateBoardData, wolvesStep, checkVictory, createProbableWolfМove, generateBoardData, checkRabbitPosition, rabbitStep(data));
 	move(val);
 };
 
@@ -220,7 +219,7 @@ const createCopy = () => {
 	};
 
 	const moveParticipants = (val) => {
-		const move = compose(render, checkVictory, createProbableWolfМove, generateBoardData, wolfStep, checkVictory, createProbableWolfМove, generateBoardData, checkRabbitPosition, rabbitStep(data));
+		const move = compose(render, checkVictory, createProbableWolfМove, generateBoardData, wolvesStep, checkVictory, createProbableWolfМove, generateBoardData, checkRabbitPosition, rabbitStep(data));
 		move(val.target.value);
 	};
 
